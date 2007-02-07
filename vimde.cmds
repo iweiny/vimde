@@ -1,0 +1,744 @@
+" Part of vimde suite of tools.
+"
+" This defines most of the commands vimde uses.
+"
+" Tags popup menu and the Symbols menu is derived from Yegappan Lakshmanan's
+" taglist.vim script.  His script is much more general but puts the symbols in
+" another window.  I prefer them on the menus as I don't use them all that
+" much.  Thank you to Yegappan for this code.
+"
+
+" For building and running
+set makeprg=cd\ \$proj_home_dir/vimde;\ ./make.sh
+map <F9> :call VimdeMake()<CR>
+map <F10> :call VimdeRun()<CR>
+map <F11> :call VimdeDebug()<CR>
+
+let g:vimde_def_make_target = ""
+function! VimdeMake()
+   "call VimdeBufWritePost()
+   call VimdeMktags()
+   exe "make ".g:vimde_def_make_target
+endfunction
+
+
+" Simple IDE functionality.
+" Build/Run/Debug
+" And the abilty to edit those scripts.
+
+function! VimdeRun()
+   exe "!".$proj_home_dir."/vimde/run.sh &"
+endfunction
+
+function! VimdeDebug()
+   exe "!".$proj_home_dir."/vimde/debug.sh &"
+endfunction
+
+" allow the user to customize the "run script"
+function! VimdeEditRun()
+   split
+   edit $proj_home_dir/vimde/run.sh
+endfunction
+
+" allow the user quick access to their "build script"
+function! VimdeEditMake()
+   split
+   edit $proj_home_dir/vimde/make.sh
+endfunction
+
+" allow the user quick access to their "debug script"
+function! VimdeEditDebug()
+   split
+   edit $proj_home_dir/vimde/debug.sh
+endfunction
+
+" allow access to the 'user project' file
+function! VimdeEditSettings()
+   split
+   edit $proj_home_dir/vimde/user.gvimrc
+endfunction
+
+
+" Functions for the ability to check out a file from some source control.
+
+function! VimdeEditCheckoutSh()
+   split
+   edit $proj_home_dir/vimde/checkout.sh
+endfunction
+
+function! VimdeEditDiffSh()
+   split
+   edit $proj_home_dir/vimde/diff.sh
+endfunction
+
+function! VimdeEditUpdateSh()
+   split
+   edit $proj_home_dir/vimde/updateSource.sh
+endfunction
+
+
+function! VimdeCheckOutFile()
+   let myfile = expand('%:p')
+
+   exe "!".$proj_home_dir."/vimde/checkout.sh ".myfile
+   edit
+endfunction
+
+function! VimdeDiffFile()
+   let myfile = expand('%:p')
+
+   let tmpfile = expand('%:t')
+
+   let v:errmsg = ""
+   exe "!".$proj_home_dir."/vimde/diff.sh ".myfile." /tmp/".tmpfile
+
+   if v:errmsg == ""
+        echo "diffing to \"/tmp/".tmpfile."\""
+        exec "vert diffsplit /tmp/".tmpfile
+   endif
+
+endfunction
+
+function! VimdeClearDiffMode()
+    set nodiff
+    set noscrollbind
+    set nowrap
+    set foldmethod=manual
+    set foldcolumn=0
+    exe ":%foldo"
+endfunction
+
+function! VimdeUpdateSource()
+   let v:errmsg = ""
+   exe "!".$proj_home_dir."/vimde/updateSource.sh"
+endfunction
+
+function! VimdePrintFile()
+   let myfile = expand('%:p')
+
+   echo "printing ".myfile
+   exe "!enscript --margins=:::50 -2r -G ".myfile
+endfunction
+
+" For the explore menus.
+let g:explHideFiles='^\.,\.o'
+let g:explDirsFirst=1
+let g:explUseSeparators=1
+let g:explSuffixesLast=1
+let g:explVertical=1
+let g:explSplitRight=1
+let g:explStartRight=0
+
+" Quickly change the directory to where the current file is.
+" Makes it easier to add new files etc.
+function! VimdeCDWhereFile()
+   let dir = expand("%:p:h")
+   exec "cd ".dir
+endfunction
+command! Cd :call VimdeCDWhereFile()
+
+function! VimdeShell()
+   let dir = expand("%:p:h")
+   exec "cd ".dir
+   exec "!rxvt -fn 7x10 -g 80x35+10+10 -cr red -fg black -bg white -sb -sl 5000 -title \"vimde -- ".dir."\" -n \"vimde -- ".dir."\" &"
+endfunction
+command! Shell :call VimdeShell()
+
+" load up the man plugin which is great
+runtime ftplugin/man.vim
+" default to getting page 2 prevents a lot of bash shell man pages from
+" comming up.
+map K :Man 2 <C-R>=expand("<cword>")<CR><CR>
+
+" generic vim commands for development
+set nocp
+
+" Find the h file which coresponds to this foo.* file
+function! VimdeFindHFile()
+   let basename = expand("%:t:r")
+   let v:errmsg = ""
+   exe "cs find f .*/".basename.".h"
+   if v:errmsg == ""
+      return
+   endif
+   let v:errmsg = ""
+   exe "cs find f .*/".basename.".hpp"
+   if v:errmsg == ""
+      return
+   endif
+   let v:errmsg = ""
+   exe "cs find f .*/".basename.".H"
+endfunction
+
+" Find the c,cc,cpp file which coresponds to this foo.* file
+function! VimdeFindCFile()
+   let basename = expand("%:t:r")
+   let v:errmsg = ""
+   exe "cs find f .*/".basename.".c"
+   if v:errmsg == ""
+      return
+   endif
+   let v:errmsg = ""
+   exe "cs find f .*/".basename.".cc"
+   if v:errmsg == ""
+      return
+   endif
+   let v:errmsg = ""
+   exe "cs find f .*/".basename.".cpp"
+   " finaly the windows version
+   if v:errmsg == ""
+      return
+   endif
+   let v:errmsg = ""
+   exe "cs find f .*/".basename.".CPP"
+   if v:errmsg == ""
+      return
+   endif
+   echo "Failed to find coresponding C/C++ file"
+endfunction
+
+" Find header under cursor
+map <C-y> :cs find f <C-R>=expand("<cfile>:t")<CR><CR>
+" Find header/c-file for the module we are in.
+map <C-h> :call VimdeFindHFile()<CR>
+map <C-c> :call VimdeFindCFile()<CR>
+
+"cscope set up.
+if has("cscope")
+  set nocst
+  set cspc=0
+  set csto=1
+  map <C-\> :call VimdeCscopeFind("<cword>", "c", "y", "n", "")<CR>
+  map <C-j> :call VimdeCscopeFind("<cword>", "s", "y", "n", "")<CR>
+  command! -nargs=1 VimdeGrep :call VimdeCscopeFind("<args>", "e", "n", "n", "")
+  map <C-g> :VimdeGrep 
+  command! -nargs=1 VimdeFindTagDef :call VimdeCscopeFind("<args>", "g", "n", "n", "")
+  map <C-d> :VimdeFindTagDef 
+  command! -nargs=1 VimdeFindAll :call VimdeCscopeFind("<args>", "s", "n", "n", "")
+  map <C-a> :VimdeFindAll 
+  command VimdeResetCscope :cs reset
+endif
+
+" for tags
+set notagrelative
+
+function! VimdeMktags()
+   "echo ""
+   "echo "*****  Regenerating tags *****"
+   silent! VimdeRebuildTags
+   silent! VimdeAddCscope
+   silent! VimdeResetCscope
+   redraw!
+endfunction
+
+function! VimdeMkAlltags()
+   echo ""
+   echo "*****  Regenerating all tags Please Wait...  *****"
+   silent! exe "!$vimde_home_dir/mktags.sh -a $vimde_kernel_mode $proj_home_dir"
+   silent! VimdeAddCscope
+   silent! VimdeResetCscope
+   " make sure the above message goes away
+   redraw!
+endfunction
+
+com Mktags :call VimdeMkAlltags()
+
+" Update the tags whenever there is a pause in the action.
+" and only update every 60s (1min)
+au! CursorHold * nested exe "call VimdeMktags"
+set updatetime=60000
+
+
+" Try to create a function which changes the grep program to be something
+" usefull.
+function! VimdeFindFile(f)
+  "split
+  if ($sub_proj_home_dir == "")
+     set grepprg=find\ $proj_home_dir\ -name\ \"$*\"\ -print
+  else
+     set grepprg=find\ $proj_home_dir\ $sub_proj_home_dir\ -name\ \"$*\"\ -print
+  endif
+  set grepformat=%f
+  exe "grep ".a:f
+  call VimdeSetDefGrep()
+endfunction
+command! -nargs=1 Open :call VimdeFindFile("<args>")<CR>:cw<CR>
+map <C-o> :Open 
+
+" Open a file with a : separated line number.  Usefull for finding errors from
+" output of programs I write.
+"    Example:  call VimdeFindDebug (main.c:20)
+"              opens main.c and moves to line 20
+function! VimdeFindDebug(str)
+  let $vfd_file=strpart(a:str, 0, stridx(a:str, ":"))
+  let $vfd_line=strpart(a:str, stridx(a:str, ":")+1)
+  exe ":find +".$vfd_line." ".$vfd_file
+endfunction
+command! -nargs=1 Debug :call VimdeFindDebug("<args>")<CR>:cw
+
+
+" easy function for when I am typeing.
+" map Tab to perform tab completion 'smartly'
+function! VimdeCleverTab()
+    if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+        return "\<Tab>"
+    else
+        return "\<C-P>"
+endfunction
+inoremap <Tab> <C-R>=VimdeCleverTab()<CR>
+inoremap (; ();<Esc>hi
+inoremap {} {<CR>}<Esc>ko
+inoremap "<Tab> ""<Esc>i
+inoremap /* /*  */<Esc>hhi
+inoremap /** /**<CR>/<Esc>ko
+inoremap /*** /** =========================================================================<CR>/<Esc>ko
+inoremap \"<Tab> \"\"<Esc>hi
+inoremap [; [];<Esc>hi
+inoremap <<Tab> <><Esc>i
+inoremap if<Tab> if ()<CR>{<CR>}<Esc>kklllli
+inoremap wh<Tab> while ()<CR>{<CR>}<Esc>kkllllllli
+inoremap for<Tab> for ()<CR>{<CR>}<Esc>kkllllli
+inoremap ret<Tab> return ();<Esc>hi
+inoremap sw<Tab> switch ()<CR>{<CR>}<Esc>kklllllllli
+inoremap case<Tab> case x:<CR><Tab>break;<Esc>kxi
+map <C-i> :normal i#include <Esc>i
+
+" some extras which I thought would be nice but are not.
+" inoremap () ()<Esc>i
+" inoremap [] []<Esc>i
+" Try these.  They are not so bad.
+inoremap (<Tab> ()<Esc>i
+inoremap [<Tab> []<Esc>i
+
+" hilight and preview definitions
+function! VimdePreviewWord()
+  if &previewwindow			" don't do this in the preview window
+    return
+  endif
+  let w = expand("<cword>")		" get the word under cursor
+  if w != ""				" if there is one ":ptag" to it
+
+    " Delete any existing highlight before showing another tag
+    silent! wincmd P			" jump to preview window
+    if &previewwindow			" if we really get there...
+      match none			" delete existing highlight
+      wincmd p			" back to old window
+    endif
+
+    " Try displaying a matching tag for the word under the cursor
+    let v:errmsg = ""
+    exe "silent! ptag " . w
+    if v:errmsg =~ "tag not found"
+      return
+    endif
+
+    silent! wincmd P			" jump to preview window
+    if &previewwindow		" if we really get there...
+	 if has("folding")
+	   silent! .foldopen		" don't want a closed fold
+	 endif
+	 call search("$", "b")		" to end of previous line
+	 let w = substitute(w, '\\', '\\\\', "")
+	 call search('\<\V' . w . '\>')	" position cursor on match
+	 " Add a match highlight to the word at this position
+      hi previewWord term=bold ctermbg=green guibg=green
+	 exe 'match previewWord "\%' . line(".") . 'l\%' . col(".") . 'c\k*"'
+      wincmd p			" back to old window
+    endif
+  endif
+endfunction
+":map <C-p> :call VimdePreviewWord()<CR>
+":map <C-n> :pclose<CR>
+"map <C-p> :call VimdeCscopeFind("<cword>", "g", "y", "y", "")<CR>
+":map <C-p> :bp<CR>
+":map <C-n> :bn<CR>
+
+function! VimdeHighlightTag(tag)
+   let mytag = a:tag
+   " delete the existing highlight
+   match none
+   call search("$", "b") " to end of previous line
+   let mytag = substitute(mytag, '\\', '\\\', "")
+   call search('\<\V' . mytag . '\>') " position cursor on match
+   " add a hightlight group
+   hi previewWord term=bold ctermbg=green guibg=green
+   " highlight the tag.
+	exe 'match previewWord "\%' . line(".") . 'l\%' . col(".") . 'c\k*"'
+endfunction
+
+let s:last_tag = "UNDEFINED"
+let s:last_type = "UNDEFINED"
+let s:last_althi = "UNDEFINED"
+
+function! VimdeUpdateLastSearch(tag, type, althi)
+   let s:last_tag = a:tag
+   let s:last_type = a:type
+   let s:last_althi = a:althi
+endfunction
+
+function! VimdeDisplayRevSymList(tag, exp)
+   if (a:exp == "y")
+      let mytag = expand(a:tag)
+   else
+      let mytag = a:tag
+   endif
+
+   " do a search backward for the definition in this function.
+   echo "Local Uses of ".mytag
+   let start_line = line(".")
+   let start_col = col(".")
+   call search("$", "bW") " move to the previous line
+   let line = search(mytag, "bW")
+   while (line != 0 && line > (start_line - 200))
+      let line_str = getline(".")
+      echo line.": ".line_str
+      call search("$", "b")
+      let line = search(mytag, "bW")
+   endwhile
+   " reposition the cursor after the searches have moved them
+   call cursor(start_line, start_col)
+endfunction
+map <C-l> :call VimdeDisplayRevSymList("<cword>", "y")<CR>
+
+" a function to wrap the csope finds
+" which also highlights the tag when it is found.
+    " @tag   tag you want
+" @type  Type of cscope search.
+" @exp   bool indicating if the tag should be expanded
+" @split bool indicating if the window should be split into a preview window
+" @althi an alternate string which is to be highlighted instead of the tag
+"        string
+function! VimdeCscopeFind(tag, type, exp, split, althi)
+   if (a:exp == "y")
+      let mytag = expand(a:tag)
+   else
+      let mytag = a:tag
+   endif
+
+   call VimdeUpdateLastSearch(mytag, a:type, a:althi)
+
+" This works on my laptop but not on my x86 box?
+" vim complied with different options or configured different?
+   "echo "DEBUG Error Message (".mytag."): ".v:errmsg
+
+   let v:errmsg = ""
+
+   "echo "DEBUG Error Message (".mytag."): ".v:errmsg
+
+   if (a:split == "y")
+      exe "scs find " . a:type . " " . mytag
+   else
+      exe "cs find " . a:type . " " . mytag
+   endif
+
+   "echo "DEBUG Error Message (".mytag."): ".v:errmsg
+
+   let error = v:errmsg
+
+   "echo "DEBUG Error Message (".mytag."): ".error
+
+" The error message checking does not seem to work any more.  I don't know why
+" but this makes things much cleaner.  You have to do a <C-l> when you want to
+" look up a local variable though.
+   "if error != ""
+      "exe "tag ".mytag
+   "endif
+
+   " highlight the tag
+   if (a:althi != "")
+      call VimdeHighlightTag(a:althi)
+   else
+      call VimdeHighlightTag(mytag)
+   endif
+
+
+   if (a:split == "y")
+      " move back to the old window
+      wincmd p
+   endif
+endfunction
+
+function! VimdeExeLastSearch()
+    if (s:last_type == "<FIND TYPE>")
+       VimdeFindType(s:last_tag, "n")
+       return
+    endif
+    call VimdeCscopeFind(s:last_tag, s:last_type, "n", "n", s:last_althi)
+endfunction
+
+" wrap <C-t> to get rid of the highlighting
+map <C-t> :match none<CR>:pop<CR>
+" and <C-]> to do highlighting!  ;-)
+map <C-]> :call VimdeCscopeFind("<cword>", "g", "y", "n", "")<CR>
+map <C-n> :call VimdeExeLastSearch()<CR>
+
+" Find a Type (Class in C++ or Java)
+" @expand expand the incomming string or not
+function! VimdeFindType(type, expand)
+   "let class = expand("<cword>")
+   "call VimdeCscopeFind("class[ \\t]*".class, "e", "n", "n", class)
+   " Let ctags take care of this one.
+   if (a:expand == "y")
+      let mytype = expand("<cword>")
+   else
+      let mytype = a:type
+   endif
+   exe "tag ".mytype
+   call VimdeHighlightTag(mytype)
+   call VimdeUpdateLastSearch(mytype, "<FIND TYPE>", "")
+endfunction
+map <C-k> :call VimdeFindType("<cword>", "y")<CR>
+
+"function! VimdeFindSubClass()
+"   let class = expand("<cword>")
+"   call VimdeCscopeFind("\(public\|private\|protected\|extends\|implements\)[ \\t]*".class, "e", "n", "n", class)
+"endfunction
+"map <C-p> :call VimdeFindSubClass()<CR>
+
+" Project explore
+function! VimdeExplore()
+   so ~/.vim/RExplorer/RExplorer.vim
+   call Explore($proj_home_dir)
+endfunction
+command! PE call VimdeExplore()
+
+" ================================================================
+" Build a list of tags for the local file buffer in the popup menu
+" Much of this code is borrowed from
+"    taglist.vim by Yegappan Lakshmanan
+" Much thanks to him.
+" ================================================================
+
+" Read the cache of tags for this buffer and change the popup menu
+" correctly.
+function! VimdeBuildPopUpTags()
+   call VimdeBuildBasePopup()
+   if (!exists("b:vimde_loc_tag_cnt"))
+       return
+   endif
+
+   " remove the old tags from the popup and Symbol menu
+   silent! exe ":unmenu PopUp.Symbols"
+   silent! exe ":unmenu S&ymbols"
+
+   let i = 0
+
+   while i < b:vimde_loc_tag_type_cnt
+       let ttype = b:vimde_pu_tagtype_list_{i}
+
+       " For each type add the _all_ category and a separator
+       silent! exe ":unmenu PopUp.Symbols.".ttype.".All.-SEP1- <Nop>"
+       silent! exe ":unmenu PopUp.Symbols.".ttype.".-SEP1- <Nop>"
+       silent! exe ":menu PopUp.Symbols.".ttype.".All.-SEP1- <Nop>"
+       silent! exe ":menu PopUp.Symbols.".ttype.".-SEP1- <Nop>"
+
+       silent! exe ":unmenu S&ymbols.".ttype.".All.-SEP1- <Nop>"
+       silent! exe ":unmenu S&ymbols.".ttype.".-SEP1- <Nop"
+       silent! exe ":menu S&ymbols.".ttype.".All.-SEP1- <Nop>"
+       silent! exe ":menu S&ymbols.".ttype.".-SEP1- <Nop"
+       let i = i + 1
+   endwhile
+
+
+   " go through the list of tags for this buffer and build the
+   " popup menu
+   let i = 0
+   while i < b:vimde_loc_tag_cnt
+      " echo b:vimde_pu_tag_{i}."\n"
+      silent! exe ":menu PopUp.Symbols.".b:vimde_pu_tagcmd_list_{i}
+                 \ ."<CR>:call VimdeCscopeFind(\""
+                 \ .b:vimde_pu_tagname_list_{i}."\", \"g\", \"n\", \"n\", \"\")<CR>"
+
+      silent! exe ":menu S&ymbols.".b:vimde_pu_tagcmd_list_{i}
+                 \ ." :call VimdeCscopeFind(\""
+                 \ .b:vimde_pu_tagname_list_{i}."\", \"g\", \"n\", \"n\", \"\")<CR>"
+      let i = i + 1
+   endwhile
+endfunction
+
+
+" This was an attempt to put the tags for a buffer in a "window"
+" It did not work.  Will need more time.
+"function! VimdeOpenLTagWindow()
+"    exec "call VimdeOpenLTagWindow_helper(b:vimde_loc_tag_cnt, b:vimde_pu_tagname_list_)"
+"endfunction
+"
+"function! VimdeOpenLTagWindow_helper(tag_cnt, tag_list)
+"    let winname = '__Tag_List__'
+" 
+"    let winnum = bufwinnr(winname)
+" 
+"    " if the window does not exist
+"    if winnum == -1
+"        let bufnum = bufnr(winname)
+"        if bufnum == -1
+"            " create a new buffer
+"            exec "topleft vertical new ".winname
+"        else
+"            exec "topleft vertical split ".winname
+"        endif
+"    endif
+" 
+"    " jump to the tag window
+"    exe winnum . 'wincmd w'
+" 
+"    " Make the buffer modifiable
+"    silent! setlocal modifiable
+"    " Delete the contents of the buffer to the black-hole register
+"    silent! %delete _
+" 
+"    call append(0, '" Tag listing for ' . fnamemodify(a:filename, ':t'))
+" 
+"    " Highlight the comments
+"    if has('syntax')
+"        syntax match TagListComment '^" .*'
+"    endif
+" 
+"    let i = 0
+"    while i < a:tag_cnt
+"        silent! put =a:tag_list{i}
+"        let i = i + 1
+"    endwhile
+" 
+"    " Mark the buffer as not modifiable
+"    silent! setlocal nomodifiable
+" 
+"    go
+" 
+"endfunction
+
+" c language
+let s:tlist_c_ctags_args = '--language-force=c --c-types=dgsutvf'
+
+" c++ language
+let s:tlist_cpp_ctags_args = '--language-force=c++ --c++-types=vdtcgsuf'
+
+" java language
+let s:tlist_java_ctags_args = '--language-force=java --java-types=pcifm'
+
+" Create the tag list variables (local to each buffer)
+"
+function! VimdePopupFuncList()
+   let ftype = &filetype
+   let fname = expand('%:p')
+
+   if (!exists("s:tlist_".ftype."_ctags_args"))
+      return
+   endif
+
+   " Exuberant ctags arguments to generate a tag list
+   "let ctags_args = ' -u -f - --format=2 --excmd=pattern --fields=nK '
+   " try ordered
+   let ctags_args = ' -f - --format=2 --excmd=pattern --fields=nK '
+   let ctags_args = ctags_args . s:tlist_{ftype}_ctags_args
+
+   let ctags_cmd = "ctags" . ctags_args . ' "' . fname . '"'
+
+   let cmd_output = system(ctags_cmd)
+
+   " Handle errors
+   if v:shell_error && cmd_output != ''
+      echohl WarningMsg | echon cmd_output | echohl None
+      return
+   endif
+
+   " No tags for current file
+   if cmd_output == ''
+      echohl WarningMsg
+      echomsg 'No tags found for ' . fname
+      echohl None
+      return
+   endif
+
+    " Process the ctags output one line at a time. Separate the tag
+    " output based on the tag type and store it in the tag type
+    " variable
+    let len = strlen(cmd_output)
+
+    " build the tag array for this buffer
+    let tag_count      = 0
+    let tag_type_count = 0
+
+    while cmd_output != ''
+        let line_len = stridx(cmd_output, "\n")
+        let one_line = strpart(cmd_output, 0, stridx(cmd_output, "\n"))
+
+        " Extract the tag type
+        let start = stridx(one_line, '/;"' . "\t") + strlen('/;"' . "\t")
+        let end = strridx(one_line, "\t")
+        let ttype = strpart(one_line, start, end - start)
+
+        " Extract the tag name
+        let ttxt = strpart(one_line, 0, stridx(one_line, "\t"))
+
+        let start = strridx(one_line, ':')
+        let lnum = strpart(one_line, start, line_len - start)
+        "echo "start: ". start. " end: ".end . " line_len: ". line_len ."\n"
+        "echo "tag: " . ttxt . " type: " . ttype . " line: " . lnum . "\n"
+        " Set the menus for each buffer which is opened.
+        let alpha = toupper(strpart(ttxt, 0, 1))
+        let b:vimde_pu_tagcmd_list_{tag_count} = ttype.".".alpha.".".ttxt." ".lnum
+        let b:vimde_pu_tagname_list_{tag_count} = ttxt
+        let tag_count = tag_count + 1
+        let b:vimde_pu_tagcmd_list_{tag_count} = ttype.".All.".ttxt." ".lnum
+        let b:vimde_pu_tagname_list_{tag_count} = ttxt
+        let tag_count = tag_count + 1
+
+        let b:vimde_pu_tagtype_list_{tag_type_count} = ttype
+        let tag_type_count = tag_type_count + 1
+
+        " Remove the processed line
+        let cmd_output = strpart(cmd_output, 
+                                \ stridx(cmd_output, "\n") + 1, len)
+    endwhile
+
+    " store the overall tag count
+    let b:vimde_loc_tag_cnt = tag_count
+    let b:vimde_loc_tag_type_cnt = tag_type_count
+
+    call VimdeBuildPopUpTags()
+
+endfunction
+
+function! VimdeBufWritePost()
+   silent! write
+   echo ""
+   echo "*****  Regenerating tags Please Wait...  *****"
+   call VimdePopupFuncList()
+   call VimdeMktags()
+endfunction
+command! W :call VimdeBufWritePost()
+
+" The options which must be set for each buffer
+function! VimdeBufferOptions()
+    set fo=tcrqon
+endfunction
+
+function! VimdeBufRead()
+   call VimdePopupFuncList()
+   call VimdeBufferOptions()
+endfunction
+
+" each time a new buffer is entered recreate the tag list
+augroup VimdeAutoCmds
+   autocmd!
+   " autocommands to handle building and changing the popup tags list
+   autocmd! BufEnter * call VimdeBuildPopUpTags()
+   autocmd! BufRead * call VimdeBufRead()
+   autocmd! BufNewFile,BufRead *.c,*.h,*.cpp,*.CPP,*.cc so $vimde_home_dir/vimde.c.cmds
+   autocmd! BufNewFile,BufRead *.java so $vimde_home_dir/vimde.java.cmds
+   "autocmd! BufWritePost * call VimdeBufWritePost()
+augroup end
+
+" Folding a) does not work b) messes with formatoptions?
+" Project explore
+"function! VimdeFold()
+"   syn region myFold start="{" end="}" transparent fold
+"   syn sync fromstart
+"   set foldmethod=syntax
+"endfunction
+"command! Vf call VimdeFold()
+
+" Set the buffer options for the buffer which is being loaded the first time.
+call VimdeBufferOptions()
+

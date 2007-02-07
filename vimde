@@ -1,0 +1,219 @@
+#!/bin/sh
+# script which sets up vim with vimde info.
+#
+
+vimde_home=${HOME}/.vimde
+
+# make this configurable.
+source $vimde_home/vimde.conf
+
+dir=`$vimde_home/realpath pwd`
+
+function make_proj {
+   if [ "$2" != "" ]; then
+      dir=`$vimde_home/realpath "$2"`
+   fi
+   echo "Project directory: \"$dir\""
+
+   if [ ! -d $dir/vimde ]; then
+      mkdir $dir/vimde
+   fi
+
+   # Always build the s.gvimrc file.
+   echo ":let \$proj_home_dir = \"$dir\"" > /tmp/vimde_dir
+   echo ":let \$vimde_home_dir = \"$vimde_home\"" >> /tmp/vimde_dir
+   echo ":source \$vimde_home_dir/s.gvimrc.raw" >> /tmp/vimde_dir
+   echo ":source \$proj_home_dir/vimde/user.gvimrc" >> /tmp/vimde_dir
+   mv /tmp/vimde_dir $dir/vimde/s.gvimrc
+   rm -f /tmp/vimde_dir
+
+   # build the tags
+   $vimde_home/mktags.sh -a $dir
+
+   # only build the user customizable scripts if they don't already have them.
+   # This will prevent us from overwritting the user's customizations.
+
+   # user overrides which they might want to change.
+   if [ ! -f $dir/vimde/user.gvimrc ]; then
+      cp $vimde_home/user.gvimrc.raw $dir/vimde/user.gvimrc
+   fi
+   if [ ! -f $dir/vimde/user.conf ]; then
+      cp $vimde_home/user.conf.raw $dir/vimde/user.conf
+   fi
+
+   # build the run script skeleton if there is not one already
+   if [ ! -f $dir/vimde/run.sh ]; then
+      echo "#!/bin/sh" > /tmp/vimde.run.sh
+      echo "PROJ_HOME=$dir" >> /tmp/vimde.run.sh
+      echo "" >> /tmp/vimde.run.sh
+      echo "cd \$PROJ_HOME" >> /tmp/vimde.run.sh
+      echo "\$PROJ_HOME/a.out" >> /tmp/vimde.run.sh
+      echo "" >> /tmp/vimde.run.sh
+      mv /tmp/vimde.run.sh $dir/vimde/run.sh
+      chmod 700 $dir/vimde/run.sh
+   fi
+
+   # build the make script skeleton if there is not one already
+   if [ ! -f $dir/vimde/make.sh ]; then
+      echo "#!/bin/sh" > /tmp/vimde.make.sh
+      echo "# NOTE: This script is run in the background (ie with the & specified)" >> /tmp/vimde.debug.sh
+      echo "#       This may adversly affect it's operation.  It might be better to spawn" >> /tmp/vimde.debug.sh
+      echo "#       terminals if there needs to be user interaction." >> /tmp/vimde.debug.sh
+      echo "PROJ_HOME=$dir" >> /tmp/vimde.make.sh
+      echo "TARGET=\$1" >> /tmp/vimde.make.sh
+      echo "" >> /tmp/vimde.make.sh
+      echo "cd \$PROJ_HOME" >> /tmp/vimde.make.sh
+      echo "make \$TARGET" >> /tmp/vimde.make.sh
+      echo "" >> /tmp/vimde.make.sh
+      mv /tmp/vimde.make.sh $dir/vimde/make.sh
+      chmod 700 $dir/vimde/make.sh
+   fi
+
+   # build the run script skeleton if there is not one already
+   if [ ! -f $dir/vimde/debug.sh ]; then
+      echo "#!/bin/sh" > /tmp/vimde.debug.sh
+      echo "# NOTE: This script is run in the background (ie with the & specified)" >> /tmp/vimde.debug.sh
+      echo "#       This may adversly affect it's operation.  It might be better to spawn" >> /tmp/vimde.debug.sh
+      echo "#       terminals if there needs to be user interaction." >> /tmp/vimde.debug.sh
+      echo "PROJ_HOME=$dir" >> /tmp/vimde.debug.sh
+      echo "" >> /tmp/vimde.debug.sh
+      echo "cd \$PROJ_HOME" >> /tmp/vimde.debug.sh
+      echo "ddd \$PROJ_HOME/a.out" >> /tmp/vimde.debug.sh
+      echo "" >> /tmp/vimde.debug.sh
+      mv /tmp/vimde.debug.sh $dir/vimde/debug.sh
+      chmod 700 $dir/vimde/debug.sh
+   fi
+
+   # build the checkout script if not there
+   if [ ! -f $dir/vimde/checkout.sh ]; then
+      echo "#!/bin/sh" > /tmp/vimde.checkout.sh
+      echo "# Script to checkout a file" >> /tmp/vimde.checkout.sh
+      echo "# \$1 is the full path file name of the file" >> /tmp/vimde.checkout.sh
+      echo "#" >> /tmp/vimde.checkout.sh
+      echo "" >> /tmp/vimde.checkout.sh
+      echo "echo \"Checking out \\\"\$1\\\"\"" >> /tmp/vimde.checkout.sh
+      echo "" >> /tmp/vimde.checkout.sh
+      echo "mycheckoutprog \$1" >> /tmp/vimde.checkout.sh
+      echo "" >> /tmp/vimde.checkout.sh
+      mv /tmp/vimde.checkout.sh $dir/vimde/checkout.sh
+      chmod 700 $dir/vimde/checkout.sh
+   fi
+
+   # build the diff script if not there
+   if [ ! -f $dir/vimde/diff.sh ]; then
+      echo "#!/bin/sh" > /tmp/vimde.diff.sh
+      echo "# Script to diff a file" >> /tmp/vimde.diff.sh
+      echo "# \$1 is the full path file name of the file" >> /tmp/vimde.diff.sh
+      echo "# \$2 is the file name to output the base file to" >> /tmp/vimde.diff.sh
+      echo "#" >> /tmp/vimde.diff.sh
+      echo "# Basically vim will execute a diff split with your file and \$2" >> /tmp/vimde.diff.sh
+      echo "#" >> /tmp/vimde.diff.sh
+      echo "" >> /tmp/vimde.diff.sh
+      echo "echo \"Diff'ing \\\"\$1\\\"\"" >> /tmp/vimde.diff.sh
+      echo "" >> /tmp/vimde.diff.sh
+      echo "mydiffprog \$1" >> /tmp/vimde.diff.sh
+      echo "" >> /tmp/vimde.diff.sh
+      mv /tmp/vimde.diff.sh $dir/vimde/diff.sh
+      chmod 700 $dir/vimde/diff.sh
+   fi
+
+   # build the update script if not there
+   if [ ! -f $dir/vimde/updateSource.sh ]; then
+      echo "#!/bin/sh" > /tmp/vimde.updateSource.sh
+      echo "# Script to update the source base \"cvs update\" \"p4 sync\" whatever..." >> /tmp/vimde.updateSource.sh
+      echo "#" >> /tmp/vimde.updateSource.sh
+      echo "" >> /tmp/vimde.updateSource.sh
+      echo "echo \"Updating source\"" >> /tmp/vimde.updateSource.sh
+      echo "" >> /tmp/vimde.updateSource.sh
+      echo "myupdateprog" >> /tmp/vimde.updateSource.sh
+      echo "" >> /tmp/vimde.updateSource.sh
+      mv /tmp/vimde.updateSource.sh $dir/vimde/updateSource.sh
+      chmod 700 $dir/vimde/updateSource.sh
+   fi
+
+}
+
+# MAIN code
+# Vain attempt to pass options through to vim...  :-(
+#while [ getopts "h" opt ] ; do
+    #vim_opts="$vim_opts $opt"
+#done
+#
+#file=$opt
+#echo "file = $file; $OPTARG"
+#exit
+
+# when the file does not exists this would result in editing the directory.
+# Don't do that!!!  ;-)
+if [ -d $1 ]; then
+   # Yet another special case.
+   file=$1
+elif [ -f $1 ]; then
+   file=`$vimde_home/realpath $1`
+else
+   file=`$vimde_home/realpath $1`/$1
+fi
+
+if [ "$1" = "--help" ]; then
+   echo "vimde [options]"
+   echo "   --help Display this help message"
+   echo "   --addsub Add a sub project to this one (not supported yet)"
+   echo "   --mkproj Make a vimde project out of an existing source base"
+   echo "   --create-proj Create a new vimde project with a main.c"
+   exit
+elif [ "$1" = "--addsub" ]; then
+   if [ ! -d $dir/vimde ]; then
+      echo "Not a project directory"
+      exit 1
+   fi
+   newdir=`$vimde_home/realpath $2`
+   echo ":let \$sub_proj_home_dir = \"$newdir\"" > /tmp/vimde_sub_dir
+   mv $dir/vimde/s.gvimrc /tmp/s.gvimrc.tmp
+   cat /tmp/vimde_sub_dir /tmp/s.gvimrc.tmp > $dir/vimde/s.gvimrc
+   exit
+elif [ "$1" = "--mkproj" ]; then
+   make_proj $2
+   exit
+elif [ "$1" = "--create-proj" ]; then
+   # create the main file first
+   if [ ! -f $dir/main.c ]; then
+      echo "#include <stdio.h>"               > $dir/main.c
+      echo ""                                 >> $dir/main.c
+      echo "int"                              >> $dir/main.c
+      echo "main(int argc, char *argv[])"     >> $dir/main.c
+      echo "{"                                >> $dir/main.c
+      echo "   return (0);"                   >> $dir/main.c
+      echo "}"                                >> $dir/main.c
+      echo ""                                 >> $dir/main.c
+   fi
+
+   # then make the vimde project
+   make_proj $2
+
+   file=$dir/main.c
+   # don't exit
+fi
+
+dir=`$vimde_home/realpath $1`
+
+while [ "$dir" != "/" ]; do
+   if [ "$dir" == "" ]; then
+      echo "Failed to find project file."
+      break
+   fi
+   echo "Searching $dir for project file"
+   # find our "project" file
+   if [ -f $dir/vimde/s.gvimrc ]; then
+      echo "Using project file $dir/vimde/s.gvimrc"
+      cd $dir # make sure we are starting at the root.
+      echo "editing $file"
+      $vim -s $dir/vimde/s.gvimrc $file
+      exit 0
+   fi
+
+   dir=`dirname $dir`
+done
+
+echo "Project file not found"
+$vim $file
+

@@ -1,0 +1,82 @@
+" Part of the vimde suite of tools
+" This defines the menus which vimde creates.
+"
+" This includes the popup menu
+" Most of the commands are defined in vimde.cmd
+"
+
+menu &Vimde.&Version\ Control.&Checkout\ File :call VimdeCheckOutFile()<CR>
+menu &Vimde.&Version\ Control.&Diff\ File :call VimdeDiffFile()<CR>
+menu &Vimde.&Version\ Control.&Update :call VimdeUpdateSource()<CR>
+menu &Vimde.-SEP1- <Nop>
+menu &Vimde.Utility.Open\ RExplorer :PE<CR>
+menu &Vimde.Utility.Open\ Home\ Shell :call VimdeShell()<CR>
+menu &Vimde.Utility.Print\ File :call VimdePrintFile()<CR>
+menu &Vimde.-SEP2- <Nop>
+
+menu &Vimde.Tags.Find\ assignments\ to :call VimdeCscopeFind("<cword>", "t", "y", "n", "")<CR>
+menu &Vimde.Tags.Find\ functions\ called :call VimdeCscopeFind("<cword>", "d", "y", "n", "")<CR>
+menu &Vimde.Tags.Find\ files\ including :call VimdeCscopeFind("%", "i", "y", "n", "")<CR>
+menu &Vimde.Tags.Open\ Tag\ Pattern\ (C-g) :VimdeTagGrep 
+menu &Vimde.Tags.Open\ Tag\ Definition\ (C-d) :VimdeFindTagDef 
+menu &Vimde.Tags.-SEP21- <Nop>
+menu &Vimde.Tags.Reset\ cscope :VimdeAddCscope<CR>:VimdeResetCscope<CR>
+menu &Vimde.Tags.ReBuild\ all\ tags\ (:Mktags) :Mktags<CR>
+menu &Vimde.-SEP3- <Nop>
+
+menu &Vimde.Make\ \(F-9\) :call VimdeMake()<CR>
+menu &Vimde.Rebuild\ all :make distclean<CR>:make<CR>
+menu &Vimde.Run\ \(F-10\) :call VimdeRun()<CR>
+menu &Vimde.Debug\ \(F-11\) :call VimdeDebug()<CR>
+menu &Vimde.Find\ Runtime\ Error\ (:Debug) :Debug 
+menu &Vimde.-SEP4- <Nop>
+
+menu &Vimde.Edit.Run\ Script :call VimdeEditRun()<CR>
+menu &Vimde.Edit.Build\ Script :call VimdeEditMake()<CR>
+menu &Vimde.Edit.Debug\ Script :call VimdeEditDebug()<CR>
+menu &Vimde.Edit.Checkout\ Script :call VimdeEditCheckoutSh()<CR>
+menu &Vimde.Edit.Diff\ Script :call VimdeEditDiffSh()<CR>
+menu &Vimde.Edit.Update\ Script :call VimdeEditUpdateSh()<CR>
+menu &Vimde.Edit.User\ Settings :call VimdeEditSettings()<CR>
+menu &Vimde.-SEP5- <Nop>
+
+menu &Vimde.Project.Reload :VimdeReloadProject<CR>
+menu &Vimde.Project.Choose :browse source!<CR>
+menu &Vimde.-SEP6- <Nop>
+
+menu &Vimde.General.Open\ File :Open 
+menu &Vimde.General.List\ Headers :call VimdeFindFile(" *.h")<CR>:cw<CR>
+menu &Vimde.General.List\ C\ Files :call VimdeFindFile("*.c")<CR>:cw<CR>
+menu &Vimde.General.List\ CPP\ Files :call VimdeFindFile("*.cpp")<CR>:cw<CR>
+menu &Vimde.General.Cursor\ Open\ File :sp<CR>:find <cfile>:t<CR>
+menu &Vimde.-SEP7- <Nop>
+menu &Vimde.&Modes.Makefile\ mode :set noexpandtab<CR>
+menu &Vimde.&Modes.No\ Makefile\ mode :set expandtab<CR>
+menu &Vimde.&Modes.Clear\ &Diff\ mode :call VimdeClearDiffMode()<CR>
+
+" popup menu
+function! VimdeBuildBasePopup()
+   set mousemodel=popup_setpos
+   unmenu PopUp
+   menu PopUp.-SEP1- <Nop>
+   menu PopUp.Tag\ Back :match none<CR>:pop<CR>
+   menu PopUp.-SEP2- <Nop>
+   menu PopUp.Debug :Debug 
+   menu PopUp.-SEP3- <Nop>
+   menu PopUp.Split\ Buffer :sp<CR>
+   menu PopUp.Buffer\ Close :q<CR>
+   menu PopUp.Diff\ with\ SC :call VimdeDiffFile()<CR>
+   menu PopUp.Clear\ Diff\ mode :call VimdeClearDiffMode()<CR>
+   menu PopUp.-SEP4- <Nop>
+   menu PopUp.Find\ Definition\ (C-]) :call VimdeCscopeFind("<cword>", "g", "y", "n", "")<CR>
+   menu PopUp.Find\ Type\ (Class)\ (C-k) :call VimdeFindType("<cword>", "y")<CR>
+   menu PopUp.Find\ Sub\ Class\ (C-p) :call VimdeFindSubClass()<CR>
+   menu PopUp.Where\ is\ this\ called\?\ (C-\\) :call VimdeCscopeFind("<cword>", "c", "y", "n", "")<CR>
+   menu PopUp.Find\ Symbol\ Anywhere\ (C-j) :call VimdeCscopeFind("<cword>", "s", "y", "n", "")<CR>
+   menu PopUp.-SEP5- <Nop>
+   menu PopUp.Man\ (C-m) :Man <C-R>=expand("<cword>")<CR><CR>
+   "menu PopUp.-SEP6- <Nop>
+endfunction
+
+call VimdeBuildBasePopup()
+

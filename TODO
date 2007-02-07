@@ -1,0 +1,14 @@
+
+ToDo:
+popup menu symbols do not use the tag stack (ie tag back & C-t do not take you
+      back)
+
+some non-repeatable minor anoying bugs exist
+
+find all java files
+
+RExplore is not fully intergrated
+
+Fix the fact we can't look up the definition of an Enum value.  Not the enum
+itself but the value.  Will need to look at getting ctags support back in.
+

@@ -1,0 +1,8 @@
+# put any config items in here.
+
+# Exclude directory paths.
+# This should be a space separated list in which each element can be passed to
+# sed.  For example to exclude files in "dot" dirs use something like \.pc to
+# escape the "."
+EXCLUDE_DIRS=""
+

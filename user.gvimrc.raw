@@ -1,0 +1,26 @@
+" User defined overrides go here
+" Define the ammount of delay time to regerate tags
+" 300,000ms == 5min
+set updatetime=300000
+
+" local settings for indenting...
+set ts=8
+set sw=8
+set autoindent
+set noexpandtab
+
+" the default make target
+let g:vimde_def_make_target = ""
+
+" quick little macro to insert an error message.
+" Customize for your own project
+map <C-e> :normal ofprintf(;stderr, "\n<Esc>hi
+
+" how many path components INCLUDING the file name to include in cscope
+" lookups.
+" 0 == all of them
+set cspc=0
+
+" If working on Kernel code set this
+" let g:vimde_kernel_mode = "-k"
+

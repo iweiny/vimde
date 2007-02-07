@@ -1,0 +1,48 @@
+" All the directory specific stuff goes here.
+" standard vim tags and make
+:if ($sub_proj_home_dir == "")
+:   set tags=$proj_home_dir/vimde/tags
+:else
+:   set tags=$proj_home_dir/vimde/tags,$sub_proj_home_dir/vimde/tags
+:endif
+:com Home Sexplore $proj_home_dir
+
+
+" path for finding files
+:if ($sub_proj_home_dir == "")
+:   set path=/usr/include,$proj_home_dir/**
+:else
+:   set path=/usr/include,$proj_home_dir/**,$sub_proj_home_dir/**
+:endif
+
+
+" non menu cscope stuff.
+:if has("cscope")
+:  function! VimdeAddCscopeFunc()
+:     cs kill -1
+:     cs add $proj_home_dir/vimde/cscope.out $proj_home_dir
+:     if ($sub_proj_home_dir != "")
+:        cs add $sub_proj_home_dir/vimde/cscope.out $sub_proj_home_dir
+:     endif
+:  endfunction
+:  com VimdeAddCscope :call VimdeAddCscopeFunc()
+:  VimdeAddCscope
+:endif
+
+
+" Function which is the default grep functionality.
+:function! VimdeSetDefGrep()
+:  set grepprg=grep\ -n\ -r\ $*\ $proj_home_dir
+:  set grepformat=%f:%l:%m
+:endfunction
+:call VimdeSetDefGrep()
+:com VimdeReloadProject source! $proj_home_dir/vimde/s.gvimrc
+:com VimdeRebuildTags !$vimde_home_dir/mktags.sh $vimde_kernel_mode $proj_home_dir
+
+" pick up the general vimde commands
+:source $vimde_home_dir/vimde.cmds
+
+" menus have to be last to use all the commands which are set up.
+:source $vimde_home_dir/vimde.menus
+
+

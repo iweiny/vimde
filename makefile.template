@@ -1,0 +1,12 @@
+MAIN = 
+
+SRC_FILES = 
+
+INCLUDES = 
+
+LIBS =
+
+$(MAIN): $(SRC_FILES)
+	gcc $^ -o $@
+
+

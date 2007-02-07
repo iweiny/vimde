@@ -1,0 +1,100 @@
+VimDe (VIM development environment) project
+
+LLNL exp branch
+
+can be run on any C, C++, or Java code base
+
+enhance's Vim's
+cscope
+make
+find
+interfaces
+by maintaining the cscope interface across invocations as well as during code
+changes (ie maintains a central cscope.out and finds it automatically and
+regenerates tags on the write of a buffer)
+
+uses the "RExplore" plugin as well as the popup menus
+
+FEATURES:
+Works on whole source trees not just one directory of source.
+Find & load cscope.out automatically when editing a soure file anywhere in the source tree.  (This includes seting the path up such that cscope can find files corectly)
+
+Provide menus to manage cscope and the "project".
+
+User editable "Build, Run, & Debug" scripts which invoke vim's make utility & quickfix features.
+
+Find all headers, C, CPP files in source tree.
+Grep with vim error list features to use :copen to click or :cn to work through found instances.
+Open files using wild cards w/ vim's error list features to navigate if multiple matches.
+Highlights tags when found.
+"Smart" tab completion.
+
+
+Cscope specific features:
+find definition
+"Where is this called?"
+find all ocurrances of symbol
+find class
+find subclass
+grep for symbol
+open header for this C or CPP file
+open C or CPP for this header file
+open include file under cursor
+open file named under cursor
+
+
+
+
+BACKGROUND:
+
+Everyone is complaining of "bad development tools" for linux.  I know there are
+IDE's available like KDevelop and others.  But the thing I have always wanted
+is an IDE which uses VIM at it's heart.
+
+VIM is quite powerfull and has many things built into it.  However, project
+integration is a bit lacking if you have to keep setting things like makeprg
+everytime you start a vim session.  I for one am always cd'ing around and
+vim'ing files when I need them.  In a large project this looses the context of
+the "project."
+
+VimDe's goal is to create a series of scripts and macros which integrate the
+following programs.
+
+VIM
+cscope
+ctags
+make
+
+The main problem with the integration of these programs seems to be "what
+directory am I in?"  They all work great except from time to time vim was
+started in a weird manner and they don't work anymore.  I want to releive these
+issues and bring them togther.
+
+Furthermore, I would like to be able to run a script which finds the "project"
+file for the source tree I am in and loads the vim configuration based on that
+project file.  Therefore setting up things like makeprg etc.
+
+Requirements:
+1) <F-9> makes the project
+2) <C-]> search for tag
+3) <C-\> find where tag is called.
+4)
+
+Nices (if I get time):
+1) Simple makefile builder.  Something which will take a series of files in a
+directory structure and figure out what to do with them.  Basically *.c and
+*.cpp or *.cc files and headers will support simple make depend etc...
+2) Call graph program integration.
+3) Class heiarch program integration.
+
+
+
+
+Vim needs to know:
+a) "home" directory of the project.
+b) what the make program is
+c) where cscope.out is
+d) where tags file is
+e)
+
+

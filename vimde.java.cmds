@@ -1,0 +1,11 @@
+" Part of vimde suite of tools.
+"
+" define the C/C++ specific commands.
+"
+
+function! VimdeFindSubClass()
+   let class = expand("<cword>")
+   call VimdeCscopeFind("\(extends\|implements\)[ \\t]*".class, "e", "n", "n", class)
+endfunction
+map <C-p> :call VimdeFindSubClass()<CR>
+
