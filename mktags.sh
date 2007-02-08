@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # simple script to build vimde tools databases
 #
