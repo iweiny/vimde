@@ -4,6 +4,10 @@
 
 vimde_home=${HOME}/.vimde
 
+if [ x"$vim" == x"" ]; then
+   vim=vim
+fi
+
 # make this configurable.
 source $vimde_home/vimde.conf
 
@@ -159,6 +163,7 @@ if [ "$1" = "--help" ]; then
    echo "   --help Display this help message"
    echo "   --addsub Add a sub project to this one (not supported yet)"
    echo "   --mkproj Make a vimde project out of an existing source base"
+   echo "   --regen clear existing cscope files and remake the project"
    echo "   --create-proj Create a new vimde project with a main.c"
    exit
 elif [ "$1" = "--addsub" ]; then
@@ -172,6 +177,11 @@ elif [ "$1" = "--addsub" ]; then
    cat /tmp/vimde_sub_dir /tmp/s.gvimrc.tmp > $dir/vimde/s.gvimrc
    exit
 elif [ "$1" = "--mkproj" ]; then
+   make_proj $2
+   exit
+elif [ "$1" = "--regen" ]; then
+   rm -f $dir/vimde/cscope.files
+   rm -f $dir/vimde/cscope.out
    make_proj $2
    exit
 elif [ "$1" = "--create-proj" ]; then
