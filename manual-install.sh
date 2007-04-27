@@ -42,7 +42,7 @@ if [ "$?" != "0" ]; then
    popd
 fi
 
-if [ `uname` = "SunOS" ]; then
+if [ `uname` = "SunOS" ] || [ `uname` = "Darwin" ]; then
    MODE='-m '
 else
    MODE='--mode='
