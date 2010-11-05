@@ -11,7 +11,8 @@ fi
 # make this configurable.
 source $vimde_home/vimde.conf
 
-dir=`$vimde_home/realpath pwd`
+dir=`pwd`
+dir=`$vimde_home/realpath $dir`
 
 function make_proj {
    if [ "$2" != "" ]; then
