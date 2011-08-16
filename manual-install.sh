@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export CSCOPE_VERSION="15.5"
+export PYCSCOPE_VERSION="0.3"
 
 # make sure we know where we are running from
 cd `dirname $0`
@@ -30,6 +31,12 @@ fi
 
 make realpath
 
+if [ `uname` = "SunOS" ] || [ `uname` = "Darwin" ]; then
+   MODE='-m '
+else
+   MODE='--mode='
+fi
+
 which cscope
 if [ "$?" != "0" ]; then
    pushd 3rdParty
@@ -42,10 +49,14 @@ if [ "$?" != "0" ]; then
    popd
 fi
 
-if [ `uname` = "SunOS" ] || [ `uname` = "Darwin" ]; then
-   MODE='-m '
-else
-   MODE='--mode='
+which pycscope
+if [ "$?" != "0" ]; then
+   pushd 3rdParty
+   tar xzf pycscope-$PYCSCOPE_VERSION.tar.gz
+   pushd pycscope-$PYCSCOPE_VERSION
+   install ${MODE}755 ./pycscope.py ${INSTALL_DIR}
+   popd
+   popd
 fi
 
 install ${MODE}755 vimde ${INSTALL_DIR}

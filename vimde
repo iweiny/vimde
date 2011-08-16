@@ -183,6 +183,8 @@ elif [ "$1" = "--mkproj" ]; then
 elif [ "$1" = "--regen" ]; then
    rm -f $dir/vimde/cscope.files
    rm -f $dir/vimde/cscope.out
+   rm -f $dir/vimde/pycscope.files
+   rm -f $dir/vimde/pycscope.out
    make_proj $2
    exit
 elif [ "$1" = "--create-proj" ]; then

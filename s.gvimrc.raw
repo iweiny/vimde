@@ -21,8 +21,10 @@
 :  function! VimdeAddCscopeFunc()
 :     cs kill -1
 :     cs add $proj_home_dir/vimde/cscope.out $proj_home_dir
+:     cs add $proj_home_dir/vimde/pycscope.out $proj_home_dir
 :     if ($sub_proj_home_dir != "")
 :        cs add $sub_proj_home_dir/vimde/cscope.out $sub_proj_home_dir
+:        cs add $sub_proj_home_dir/vimde/pycscope.out $sub_proj_home_dir
 :     endif
 :  endfunction
 :  com VimdeAddCscope :call VimdeAddCscopeFunc()

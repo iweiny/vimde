@@ -53,6 +53,7 @@ if [ "$make_all" == "yes" ] || [ ! -f ./vimde/cscope.files ]; then
 
    # remove old database
    rm -f ./vimde/cscope.out
+   rm -f ./vimde/pycscope.out
 
    # regenerate the list of files
    find $dir -iname "*.h"    -print >  ./vimde/cscope.files
@@ -63,25 +64,23 @@ if [ "$make_all" == "yes" ] || [ ! -f ./vimde/cscope.files ]; then
    find $dir -iname "*.cpp"  -print >> ./vimde/cscope.files
    find $dir -iname "*.java" -print >> ./vimde/cscope.files
 
-#   find $dir -iname "*.h"    -print | sed -e "s/ /\\\ /g" >  ./vimde/cscope.files
-#   find $dir -iname "*.hpp"  -print | sed -e "s/ /\\\ /g" >> ./vimde/cscope.files
-#   find $dir -name  "*.c"    -print | sed -e "s/ /\\\ /g" >> ./vimde/cscope.files
-#   find $dir -iname "*.cc"   -print | sed -e "s/ /\\\ /g" >> ./vimde/cscope.files
-#   find $dir -name  "*.cxx"  -print | sed -e "s/ /\\\ /g" >> ./vimde/cscope.files
-#   find $dir -iname "*.cpp"  -print | sed -e "s/ /\\\ /g" >> ./vimde/cscope.files
-#   find $dir -iname "*.java" -print | sed -e "s/ /\\\ /g" >> ./vimde/cscope.files
+   # Add Python files.
+   find $dir -iname "*.py" -print > ./vimde/pycscope.files
 fi
 
 for exclude_path in $EXCLUDE_DIRS; do
    echo "excluding : $exclude_path"
    cat ./vimde/cscope.files | sed -e "s/.*$exclude_path.*//g" > tmp.foo
    mv tmp.foo ./vimde/cscope.files
+   cat ./vimde/pycscope.files | sed -e "s/.*$exclude_path.*//g" > tmp.foo
+   mv tmp.foo ./vimde/pycscope.files
 done
 
 if [ "$kernel_mode" = "yes" ]; then
    cscope -k -b -i ./vimde/cscope.files -f ./vimde/cscope.out
 else
    cscope -b -i ./vimde/cscope.files -f ./vimde/cscope.out
+   pycscope.py -i ./vimde/pycscope.files -f ./vimde/pycscope.out
 fi
 
 # I found that this was to slow to do on a regular basis
