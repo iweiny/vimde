@@ -732,12 +732,12 @@ augroup end
 
 " Folding a) does not work b) messes with formatoptions?
 " Project explore
-"function! VimdeFold()
-"   syn region myFold start="{" end="}" transparent fold
-"   syn sync fromstart
-"   set foldmethod=syntax
-"endfunction
-"command! Vf call VimdeFold()
+function! VimdeFold()
+   "syn region myFold start="{" end="}" transparent fold
+   "syn sync fromstart
+   set foldmethod=syntax
+endfunction
+command! Vf call VimdeFold()
 
 " Set the buffer options for the buffer which is being loaded the first time.
 call VimdeBufferOptions()
