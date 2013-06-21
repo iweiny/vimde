@@ -148,6 +148,11 @@ function make_proj {
 #echo "file = $file; $OPTARG"
 #exit
 
+if [ "$1" == "-g" ]; then
+   vim="gvim"
+   shift
+fi
+
 # when the file does not exists this would result in editing the directory.
 # Don't do that!!!  ;-)
 if [ -d $1 ]; then
