@@ -164,7 +164,7 @@ else
    file=`$vimde_home/realpath $1`/$1
 fi
 
-if [ "$1" = "--help" ]; then
+if [ "$1" == "-h" ] || [ "$1" = "--help" ]; then
    echo "vimde [options]"
    echo "   --help Display this help message"
    echo "   --addsub Add a sub project to this one (not supported yet)"
