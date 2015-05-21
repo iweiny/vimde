@@ -210,8 +210,9 @@ if has("cscope")
   set csto=1
   map <C-\> :call VimdeCscopeFind("<cword>", "c", "y", "n", "")<CR>
   map <C-j> :call VimdeCscopeFind("<cword>", "s", "y", "n", "")<CR>
-  command! -nargs=1 VimdeGrep :call VimdeCscopeFind("<args>", "e", "n", "n", "")
+  command! -nargs=1 VimdeGrep :vimgrep /<args>/g `cat ./vimde/all.files`
   map <C-g> :VimdeGrep 
+  command! -nargs=1 VimdeGrepAll :vimgrep /<args>/g **/*
   command! -nargs=1 VimdeFindTagDef :call VimdeCscopeFind("<args>", "g", "n", "n", "")
   map <C-d> :VimdeFindTagDef 
   command! -nargs=1 VimdeFindAll :call VimdeCscopeFind("<args>", "s", "n", "n", "")

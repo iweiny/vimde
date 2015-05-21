@@ -90,5 +90,8 @@ if [ "$make_all" == "yes" ]; then
    ctags --c++-types=cegnv -f ./vimde/tags -L ./vimde/cscope.files
 fi
 
+cat ./vimde/cscope.files > ./vimde/all.files
+cat ./vimde/pycscope.files >> ./vimde/all.files
+
 exit 0
 
