@@ -302,7 +302,6 @@ inoremap for<Tab> for ()<CR>{<CR>}<Esc>kkllllli
 inoremap ret<Tab> return ();<Esc>hi
 inoremap sw<Tab> switch ()<CR>{<CR>}<Esc>kklllllllli
 inoremap case<Tab> case x:<CR><Tab>break;<Esc>kxi
-map <C-i> :normal i#include <Esc>i
 
 " some extras which I thought would be nice but are not.
 " inoremap () ()<Esc>i
@@ -557,6 +556,16 @@ function! VimdeBuildPopUpTags()
    endwhile
 endfunction
 
+" Git integration
+" Enter git mode
+function! VimdeGitMode()
+	silent! exe "!$vimde_home_dir/gitmode.sh $proj_home_dir"
+	redraw!
+endfunction
+map <C-i> :call VimdeGitMode()<CR>
+map <C-f> :!git diff --color<CR>
+map <C-r> :!git show --color<CR>
+map <C-b> :!git branch -vv<CR>
 
 " This was an attempt to put the tags for a buffer in a "window"
 " It did not work.  Will need more time.

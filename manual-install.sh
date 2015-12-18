@@ -63,6 +63,7 @@ install ${MODE}755 vimde ${INSTALL_DIR}
 install ${MODE}755 realpath ${VIMDE_HOME}
 install ${MODE}755 mktags.sh ${VIMDE_HOME}
 install ${MODE}755 conv_spaces.pl ${VIMDE_HOME}
+install ${MODE}755 gitmode.sh ${VIMDE_HOME}
 install ${MODE}644 s.gvimrc.raw ${VIMDE_HOME}
 install ${MODE}644 user.gvimrc.raw ${VIMDE_HOME}
 install ${MODE}644 user.conf.raw ${VIMDE_HOME}
@@ -70,6 +71,7 @@ install ${MODE}644 vimde.menus ${VIMDE_HOME}
 install ${MODE}644 vimde.cmds ${VIMDE_HOME}
 install ${MODE}644 vimde.c.cmds ${VIMDE_HOME}
 install ${MODE}644 vimde.java.cmds ${VIMDE_HOME}
+install ${MODE}644 vimde.git.cmds ${VIMDE_HOME}
 
 ln -s ${INSTALL_DIR}/vimde ${INSTALL_DIR}/vd
 

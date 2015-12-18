@@ -1,0 +1,26 @@
+" Part of vimde suite of tools.
+"
+" Define Git commands.
+"
+
+" Git commands...
+function! VimdeGitShow(commit)
+	let com_str=expand(a:commit)
+	bd *.patch
+	silent! exe "!git show ".com_str." > $proj_home_dir/vimde/temporary.patch"
+	silent! vsplit $proj_home_dir/vimde/temporary.patch
+	redraw!
+	wincmd w
+endfunction
+
+
+map i :call VimdeGitShow("<cword>")<CR>
+map <C-b> :!git branch -vv<CR>
+
+" Use with caution right now
+map <C-r> :!git rebase -i <cword>
+map <C-n> :!git rebase --continue
+
+" Does not work
+"map <C-o> :!git checkout <cword><CR>
+
