@@ -564,7 +564,7 @@ endfunction
 map <C-i> :call VimdeGitMode()<CR>
 map <C-f> :!git diff --color<CR>
 map <C-r> :!git show --color<CR>
-map <C-b> :!git branch -vv<CR>
+map <C-v> :!git branch -vv<CR>
 
 " This was an attempt to put the tags for a buffer in a "window"
 " It did not work.  Will need more time.

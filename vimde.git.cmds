@@ -15,7 +15,7 @@ endfunction
 
 
 map i :call VimdeGitShow("<cword>")<CR>
-map <C-b> :!git branch -vv<CR>
+map <C-v> :!git branch -vv<CR>
 
 " Use with caution right now
 map <C-r> :!git rebase -i <cword>
