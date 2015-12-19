@@ -245,7 +245,7 @@ com Mktags :call VimdeMkAlltags()
 
 " Update the tags whenever there is a pause in the action.
 " and only update every 60s (1min)
-au! CursorHold * nested exe "call VimdeMktags"
+au! CursorHold * nested exe "call VimdeMktags()"
 set updatetime=60000
 
 
