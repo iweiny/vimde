@@ -41,3 +41,17 @@ map q :qa<CR>
 map <C-r> :!git rebase -i <cword>
 map <C-n> :!git rebase --continue
 
+let format=""
+function! VimdeFormatPatch(commit)
+	if (g:format == "")
+		let g:format=expand(a:commit)
+	else
+		let end=expand(a:commit)
+		silent! exe "!rm $proj_home_dir/vimde/*.patch"
+		silent! exe "!$vimde_home_dir/gitfp.sh ".g:format." ".end." $proj_home_dir/vimde"
+		let g:format=""
+	endif
+	redraw!
+endfunction
+map <C-p> :call VimdeFormatPatch("<cword>")<CR>
+
