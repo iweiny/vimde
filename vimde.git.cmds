@@ -15,6 +15,7 @@ function! VimdeGitShow(commit)
 	else
 		silent! vsplit $proj_home_dir/vimde/temporary.patch
 	endif
+	set colorcolumn=80
 	redraw!
 	wincmd w
 endfunction
