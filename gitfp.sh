@@ -32,15 +32,18 @@ if [ "$rc" != "0" ]; then
 fi
 
 
+echo "format-patch $begin -> $end"
+
 # See if the branch exists
 echo -n "Special --subject-prefix ? : "
 read subject
 if [ "$subject" != "" ]; then
-	subject="--subject-prefix='$subject'"
+	git format-patch $cover --subject-prefix="$subject" $begin^..$end
+else
+	git format-patch $cover $begin^..$end
 fi
 
-echo "format-patch $begin -> $end"
-git format-patch $cover $subject $begin^..$end
+
 mv *.patch $output_dir
 
 echo -n "Edit files (y/n)? "
