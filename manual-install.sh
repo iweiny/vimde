@@ -64,6 +64,7 @@ install ${MODE}755 realpath ${VIMDE_HOME}
 install ${MODE}755 mktags.sh ${VIMDE_HOME}
 install ${MODE}755 conv_spaces.pl ${VIMDE_HOME}
 install ${MODE}755 gitmode.sh ${VIMDE_HOME}
+install ${MODE}755 gitco.sh ${VIMDE_HOME}
 install ${MODE}644 s.gvimrc.raw ${VIMDE_HOME}
 install ${MODE}644 user.gvimrc.raw ${VIMDE_HOME}
 install ${MODE}644 user.conf.raw ${VIMDE_HOME}

@@ -3,24 +3,41 @@
 " Define Git commands.
 "
 
-" Git commands...
+set nowrap
+
 function! VimdeGitShow(commit)
 	let com_str=expand(a:commit)
 	bd *.patch
+	let width = winwidth(0)
 	silent! exe "!git show ".com_str." > $proj_home_dir/vimde/temporary.patch"
-	silent! vsplit $proj_home_dir/vimde/temporary.patch
+	if width < 100
+		silent! split $proj_home_dir/vimde/temporary.patch
+	else
+		silent! vsplit $proj_home_dir/vimde/temporary.patch
+	endif
 	redraw!
 	wincmd w
 endfunction
-
-
 map i :call VimdeGitShow("<cword>")<CR>
-map <C-v> :!git branch -vv<CR>
+
+function! VimdeGitShowBranch()
+	bd *.branches
+	silent! exe "!git branch -vv  > $proj_home_dir/vimde/temporary.branches"
+	silent! split $proj_home_dir/vimde/temporary.branches
+	redraw!
+endfunction
+map b :call VimdeGitShowBranch()<CR>
+
+function! VimdeGitCheckout(commit)
+	let com_str=expand(a:commit)
+	silent! exe "!$vimde_home_dir/gitco.sh ".com_str
+	redraw!
+endfunction
+map <C-o> :call VimdeGitCheckout("<cWORD>")<CR>
+
+map q :qa<CR>
 
 " Use with caution right now
 map <C-r> :!git rebase -i <cword>
 map <C-n> :!git rebase --continue
-
-" Does not work
-"map <C-o> :!git checkout <cword><CR>
 
