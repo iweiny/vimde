@@ -53,6 +53,7 @@ function! VimdeFormatPatch(commit)
 		let g:format=""
 	endif
 	redraw!
+	echo 'Format patch from commit : ' . expand(a:commit)
 endfunction
 map <C-p> :call VimdeFormatPatch("<cword>")<CR>
 
