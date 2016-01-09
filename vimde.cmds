@@ -562,8 +562,11 @@ function! VimdeGitMode()
 	redraw!
 endfunction
 map <C-i> :call VimdeGitMode()<CR>
-map <C-r> :!git diff --color<CR>
-map <C-v> :!git branch -vv<CR>
+" We are running out of control characters in vimde that is the big reason for
+" a 'git mode'  But define a quick setting here to see what we have changed.
+" map <C-r> :!git diff --color<CR>
+" map <C-v> :!git branch -vv<CR>
+map <C-v> :!git diff --color<CR>
 
 " This was an attempt to put the tags for a buffer in a "window"
 " It did not work.  Will need more time.
