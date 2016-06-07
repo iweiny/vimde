@@ -48,8 +48,7 @@ function! VimdeFormatPatch(commit)
 		let g:format=expand(a:commit)
 	else
 		let end=expand(a:commit)
-		silent! exe "!rm $proj_home_dir/vimde/*.patch"
-		silent! exe "!$vimde_home_dir/gitfp.sh ".g:format." ".end." $proj_home_dir/vimde"
+		silent! exe "!$vimde_home_dir/gitfp.sh ".g:format." ".end." $proj_home_dir"
 		let g:format=""
 	endif
 	redraw!

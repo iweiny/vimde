@@ -44,7 +44,9 @@ else
 fi
 
 
-mv *.patch $output_dir
+if [ `pwd` != $output_dir ]; then
+	mv *.patch $output_dir
+fi
 
 echo -n "Edit files (y/n)? "
 read ch
