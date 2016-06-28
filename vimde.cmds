@@ -568,6 +568,20 @@ map <C-i> :call VimdeGitMode()<CR>
 " map <C-v> :!git branch -vv<CR>
 " map <C-v> :!git diff --color<CR>
 
+function! VimdeGitAnnotate()
+   silent! exe "!git annotate % > $vimde_home_dir/annotate.tmp"
+   silent! edit $vimde_home_dir/annotate.tmp
+   redraw!
+endfunction
+com GAnn :call VimdeGitAnnotate()
+
+function! VimdeGitView()
+   silent! exe "!git show --color <cword>"
+   redraw!
+endfunction
+com GView :call VimdeGitView()
+
+
 " This was an attempt to put the tags for a buffer in a "window"
 " It did not work.  Will need more time.
 "function! VimdeOpenLTagWindow()
