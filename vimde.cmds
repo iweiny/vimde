@@ -564,9 +564,6 @@ endfunction
 map <C-i> :call VimdeGitMode()<CR>
 " We are running out of control characters in vimde that is the big reason for
 " a 'git mode'  But define a quick setting here to see what we have changed.
-" map <C-r> :!git diff --color<CR>
-" map <C-v> :!git branch -vv<CR>
-" map <C-v> :!git diff --color<CR>
 
 function! VimdeGitAnnotate()
    silent! exe "!git annotate % > $vimde_home_dir/annotate.tmp"
@@ -575,12 +572,23 @@ function! VimdeGitAnnotate()
 endfunction
 com GAnn :call VimdeGitAnnotate()
 
-function! VimdeGitView()
+function! VimdeGitShow()
    silent! exe "!git show --color <cword>"
    redraw!
 endfunction
-com GView :call VimdeGitView()
+com GSh :call VimdeGitShow()
 
+function! VimdeGitDiff()
+   silent! exe "!git diff > $vimde_home_dir/diff.tmp"
+   silent! edit $vimde_home_dir/diff.tmp
+   redraw!
+endfunction
+com GDi :call VimdeGitDiff()
+
+function! VimdeGitBranch()
+   exe "!git branch -vvv"
+endfunction
+com GBr :call VimdeGitBranch()
 
 " This was an attempt to put the tags for a buffer in a "window"
 " It did not work.  Will need more time.
