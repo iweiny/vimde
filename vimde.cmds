@@ -575,29 +575,34 @@ function! VimdeGitAnnotate()
 endfunction
 com GAnn :call VimdeGitAnnotate()
 
-function! VimdeGitShow()
-   let width = winwidth(0)
-   bd diff.tmp
-   silent! exe "!git show <cword> > $vimde_home_dir/diff.tmp"
-   if width < 100
+function! VimdeSmartSplit(width)
+   if a:width < 100
       silent! split $vimde_home_dir/diff.tmp
    else
       silent! vsplit $vimde_home_dir/diff.tmp
    endif
    redraw!
 endfunction
-com GSh :call VimdeGitShow()
+
+function! VimdeGitShow(cword)
+   let width = winwidth(0)
+   bd diff.tmp
+   silent! exe "!git show ".a:cword." > $vimde_home_dir/diff.tmp"
+   call VimdeSmartSplit(width)
+endfunction
+com GSh :call VimdeGitShow("")
+
+function! VimdeGitAnnotateShow(cword)
+   call VimdeGitShow(a:cword)
+   wincmd w
+endfunction
+com Gas :call VimdeGitAnnotateShow("<cword>")
 
 function! VimdeGitDiff()
    let width = winwidth(0)
    bd diff.tmp
    silent! exe "!git diff > $vimde_home_dir/diff.tmp"
-   if width < 100
-      silent! split $vimde_home_dir/diff.tmp
-   else
-      silent! vsplit $vimde_home_dir/diff.tmp
-   endif
-   redraw!
+   call VimdeSmartSplit(width)
 endfunction
 com GDi :call VimdeGitDiff()
 
