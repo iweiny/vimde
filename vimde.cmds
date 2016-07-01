@@ -567,6 +567,7 @@ map <C-i> :call VimdeGitMode()<CR>
 
 function! VimdeGitAnnotate()
    let line = line(".")
+   bd annotate.tmp
    silent! exe "!git annotate % > $vimde_home_dir/annotate.tmp"
    silent! edit $vimde_home_dir/annotate.tmp
    silent! exe line
@@ -576,6 +577,7 @@ com GAnn :call VimdeGitAnnotate()
 
 function! VimdeGitShow()
    let width = winwidth(0)
+   bd diff.tmp
    silent! exe "!git show <cword> > $vimde_home_dir/diff.tmp"
    if width < 100
       silent! split $vimde_home_dir/diff.tmp
@@ -587,8 +589,14 @@ endfunction
 com GSh :call VimdeGitShow()
 
 function! VimdeGitDiff()
+   let width = winwidth(0)
+   bd diff.tmp
    silent! exe "!git diff > $vimde_home_dir/diff.tmp"
-   silent! edit $vimde_home_dir/diff.tmp
+   if width < 100
+      silent! split $vimde_home_dir/diff.tmp
+   else
+      silent! vsplit $vimde_home_dir/diff.tmp
+   endif
    redraw!
 endfunction
 com GDi :call VimdeGitDiff()
