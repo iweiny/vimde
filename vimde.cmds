@@ -565,52 +565,6 @@ map <C-i> :call VimdeGitMode()<CR>
 " We are running out of control characters in vimde that is the big reason for
 " a 'git mode'  But define a quick setting here to see what we have changed.
 
-function! VimdeGitAnnotate()
-   let line = line(".")
-   bd annotate.tmp
-   silent! exe "!git annotate % > $vimde_home_dir/annotate.tmp"
-   silent! edit $vimde_home_dir/annotate.tmp
-   silent! exe line
-   redraw!
-endfunction
-com GAnn :call VimdeGitAnnotate()
-
-function! VimdeSmartSplit(width)
-   if a:width < 100
-      silent! split $vimde_home_dir/diff.tmp
-   else
-      silent! vsplit $vimde_home_dir/diff.tmp
-   endif
-   redraw!
-endfunction
-
-function! VimdeGitShow(cword)
-   let width = winwidth(0)
-   bd diff.tmp
-   silent! exe "!git show ".a:cword." > $vimde_home_dir/diff.tmp"
-   call VimdeSmartSplit(width)
-endfunction
-com GSh :call VimdeGitShow("")
-
-function! VimdeGitAnnotateShow(cword)
-   call VimdeGitShow(a:cword)
-   wincmd w
-endfunction
-com Gas :call VimdeGitAnnotateShow("<cword>")
-
-function! VimdeGitDiff()
-   let width = winwidth(0)
-   bd diff.tmp
-   silent! exe "!git diff > $vimde_home_dir/diff.tmp"
-   call VimdeSmartSplit(width)
-endfunction
-com GDi :call VimdeGitDiff()
-
-function! VimdeGitBranch()
-   exe "!git branch -vvv"
-endfunction
-com GBr :call VimdeGitBranch()
-
 " This was an attempt to put the tags for a buffer in a "window"
 " It did not work.  Will need more time.
 "function! VimdeOpenLTagWindow()
