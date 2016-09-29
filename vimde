@@ -4,6 +4,8 @@
 
 vimde_home=${HOME}/.vimde
 
+git_mode=no
+
 if [ x"$vim" == x"" ]; then
    vim=vim
 fi
@@ -171,6 +173,7 @@ if [ "$1" == "-h" ] || [ "$1" = "--help" ]; then
    echo "   --mkproj Make a vimde project out of an existing source base"
    echo "   --regen clear existing cscope files and remake the project"
    echo "   --create-proj Create a new vimde project with a main.c"
+   echo "   --git <branch> start in git mode on <branch>"
    exit
 elif [ "$1" = "--addsub" ]; then
    if [ ! -d $dir/vimde ]; then
@@ -210,6 +213,8 @@ elif [ "$1" = "--create-proj" ]; then
 
    file=$dir/main.c
    # don't exit
+elif [ "$1" = "--git" ]; then
+   git_mode=yes
 fi
 
 dir=`$vimde_home/realpath $1`
@@ -224,8 +229,12 @@ while [ "$dir" != "/" ]; do
    if [ -f $dir/vimde/s.gvimrc ]; then
       echo "Using project file $dir/vimde/s.gvimrc"
       cd $dir # make sure we are starting at the root.
-      echo "editing $file"
-      $vim -s $dir/vimde/s.gvimrc $file
+      if [ $git_mode == "yes" ]; then
+          $vimde_home/gitmode.sh $dir $2
+      else
+          echo "editing $file"
+          $vim -s $dir/vimde/s.gvimrc $file
+      fi
       exit 0
    fi
 
