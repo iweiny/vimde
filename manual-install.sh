@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export CSCOPE_VERSION="15.5"
 export PYCSCOPE_VERSION="0.3"
 
 # make sure we know where we are running from
@@ -35,18 +34,6 @@ if [ `uname` = "SunOS" ] || [ `uname` = "Darwin" ]; then
    MODE='-m '
 else
    MODE='--mode='
-fi
-
-which cscope
-if [ "$?" != "0" ]; then
-   pushd 3rdParty
-   #tar xzf cscope-$CSCOPE_VERSION.tar.gz
-   pushd cscope-$CSCOPE_VERSION
-   #./configure
-   #make
-   install ${MODE}755 ./src/cscope ${INSTALL_DIR}
-   popd
-   popd
 fi
 
 which pycscope.py
